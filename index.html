@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>우리 반 인물지도</title>
+<style>
+:root{
+  color-scheme: light;
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#eb6834; --s1-soft:#cde2fb; --water:#b7d3f6;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+    --s1:#3987e5; --s2:#d95926; --s1-soft:#104281; --water:#184f95;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#d95926; --s1-soft:#104281; --water:#184f95;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;line-height:1.55}
+.wrap{max-width:1160px;margin:0 auto;padding:32px 16px 64px}
+.eyebrow{font-size:12px;color:var(--muted);letter-spacing:.04em;display:flex;gap:14px;flex-wrap:wrap}
+h1{font-size:clamp(30px,5vw,46px);margin:8px 0 12px;letter-spacing:-.02em;line-height:1.15}
+.lede{max-width:760px;color:var(--ink2);font-size:15px;margin:0 0 24px}
+.lede b{color:var(--ink)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px}
+.top{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+@media (max-width:900px){.top{grid-template-columns:1fr}}
+h2{font-size:15px;margin:0 0 2px}
+.sub{font-size:12px;color:var(--muted);margin:0 0 12px}
+svg{display:block;width:100%;height:auto}
+.ring{fill:none;stroke:var(--grid);stroke-width:1}
+.ringlab{font-size:10px;fill:var(--muted)}
+.river{fill:none;stroke:var(--water);stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+.geo{font-size:11px;fill:var(--muted);letter-spacing:.2em}
+.link{stroke:var(--axis);stroke-width:1}
+.pt{cursor:pointer}
+.pt circle.dot{fill:var(--s1);stroke:var(--surface);stroke-width:2}
+.pt circle.hit{fill:transparent}
+.pt text{font-size:12px;fill:var(--ink2);paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
+.pt:hover text,.pt.on text{fill:var(--ink);font-weight:700}
+.pt.on circle.dot{stroke:var(--ink);stroke-width:2.5}
+.pt:focus-visible{outline:none}
+.pt:focus-visible circle.dot{stroke:var(--ink);stroke-width:2.5}
+.school rect{fill:var(--s2);stroke:var(--surface);stroke-width:2}
+.school text{font-size:12px;font-weight:700;fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:4px}
+.note{font-size:11px;color:var(--muted);margin:10px 0 0}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--ink2);margin-bottom:8px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.legend .a{background:var(--s1);border-radius:50%}
+.legend .b{background:var(--s2);border-radius:2px}
+/* profile */
+.pname{font-size:26px;font-weight:700;letter-spacing:-.01em;margin:0 0 12px}
+dl{margin:0}
+dt{font-size:11px;color:var(--muted);margin-top:12px}
+dd{margin:2px 0 0;font-size:14px;overflow-wrap:anywhere}
+dd a{color:inherit;text-decoration:underline;text-decoration-color:var(--axis);text-underline-offset:3px}
+.roster{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;padding-top:14px;border-top:1px solid var(--grid)}
+.roster button{font:inherit;font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid var(--border);
+  background:transparent;color:var(--ink2);cursor:pointer}
+.roster button:hover{background:var(--grid)}
+.roster button.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:16px 0}
+@media (max-width:700px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile .v{font-size:32px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.tile .v small{font-size:15px;font-weight:500;color:var(--ink2);margin-left:2px}
+.tile .k{font-size:12px;color:var(--ink2);margin-top:4px}
+/* bars */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+.row{display:grid;grid-template-columns:var(--lw,92px) minmax(0,1fr);gap:10px;align-items:center;
+  padding:5px 0;font-size:13px;border-radius:4px}
+.row.click{cursor:pointer}
+.row.click:hover{background:var(--grid)}
+.row .lab{color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .lab small{color:var(--muted);margin-left:4px}
+.track{position:relative;display:flex;align-items:center;gap:8px;min-width:0}
+.bar{height:12px;background:var(--s1);border-radius:0 4px 4px 0;flex:none;min-width:2px}
+.bar.cut{background:repeating-linear-gradient(90deg,var(--s1) 0 14px,var(--surface) 14px 17px)}
+.val{font-size:12px;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.who{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.row.on .lab{color:var(--ink);font-weight:700}
+.dots{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px}
+.dots span{width:14px;height:14px;border-radius:50%;background:var(--s1)}
+.dots span.off{background:transparent;border:2px solid var(--axis)}
+.quote{font-size:13px;color:var(--ink2);margin:10px 0 0;padding-left:10px;border-left:2px solid var(--grid)}
+footer{font-size:11px;color:var(--muted);margin-top:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow"><span>2026-2학기</span><span>깃허브 주소 입력표</span><span>수강생 15명</span></div>
+  <h1>우리 반 인물지도</h1>
+  <p class="lede" id="lede"></p>
+
+  <div class="top">
+    <section class="card">
+      <h2>사는 곳</h2>
+      <p class="sub">점이나 이름을 누르면 오른쪽에 프로필이 열립니다 · 동심원은 학교에서의 직선거리</p>
+      <div class="legend"><span><i class="a"></i>수강생</span><span><i class="b"></i>학교 (경동대 양주 캠퍼스)</span></div>
+      <svg id="map" viewBox="120 30 810 560" role="img" aria-label="수강생 거주지 지도"></svg>
+      <p class="note">좌표는 행정동(또는 시청) 중심 근사값, 거리는 직선거리입니다. 학교는 경동대학교 양주 캠퍼스입니다.</p>
+    </section>
+    <aside class="card" id="profile" aria-live="polite"></aside>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="grid2">
+    <section class="card">
+      <h2>학교까지 직선거리</h2>
+      <p class="sub">가까운 순 · km · 줄을 누르면 프로필이 열립니다</p>
+      <div id="dist" style="--lw:64px"></div>
+      <p class="note">거제(본가로 보임)는 축을 벗어나 막대를 끊어 표시했습니다. 축 최대 60km.</p>
+    </section>
+    <div style="display:grid;gap:16px">
+      <section class="card">
+        <h2>취미</h2>
+        <p class="sub">한 사람이 여러 개를 쓴 경우 각각 집계 · 명</p>
+        <div id="hobby" style="--lw:104px"></div>
+      </section>
+      <section class="card">
+        <h2>세상에서 가장 아끼는 것</h2>
+        <p class="sub">복수 응답 포함 · 명</p>
+        <div id="love" style="--lw:104px"></div>
+        <p class="quote">박준영은 “김보라”를, 김보라는 “김복돌”을 적었습니다.</p>
+      </section>
+      <section class="card">
+        <h2>성별 칸에 적힌 것</h2>
+        <p class="sub">입력된 그대로 · 명</p>
+        <div id="gender" style="--lw:104px"></div>
+      </section>
+    </div>
+  </div>
+
+  <footer>출처: 깃허브 주소 입력표 (CSV) · 참고한 형식: JS 스튜디오 인물지도</footer>
+</div>
+
+<script>
+const SCHOOL = {lat:37.811, lon:127.083, name:"학교"};
+const P = [
+ {n:"박종석", gh:"John02-design", page:"https://john02-design.github.io/1234/", ig:"I_am_jongseok", hobby:"일렉기타, 영화감상", home:"경기도 의정부시 민락동", short:"의정부 민락동", love:"나", sex:"", lat:37.745, lon:127.095, a:"r"},
+ {n:"박준영", gh:"alex60796-bot", page:"https://alex60796-bot.github.io/dkssudgktpdy/", ig:"jxn.y0xn9", hobby:"피파", home:"경기도 의정부시 의정부동", short:"의정부 의정부동", love:"김보라", sex:"공룡", lat:37.740, lon:127.045, a:"l"},
+ {n:"강민서", gh:"rlverms", page:"https://rlverms.github.io/rlverms/", ig:"rlverms", hobby:"쿠리만쥬 인형 구매, 영화 시청, 음악 감상", home:"서울특별시 노원구 상계동", short:"노원 상계동", love:"엄마", sex:"여자", lat:37.665, lon:127.065, a:"r"},
+ {n:"박정빈", gh:"ImSAKUYAmyfriendisRYO", page:"https://imsakuyamyfriendisryo.github.io/-/", ig:"upfstpu.2", hobby:"노래듣기", home:"거제시 장평동", short:"거제 장평동", love:"나 ^.....^", sex:"여자", lat:34.890, lon:128.607, off:true},
+ {n:"김나림", gh:"nalimgim947", page:"", ig:"thisisimrimthis", hobby:"그림, 음악, 운동, 애니", home:"경기도 동두천시", short:"동두천", love:"나라고 나", sex:"덩엉이", lat:37.903, lon:127.060, a:"l"},
+ {n:"김보라", gh:"KIMBORA050411", page:"https://kimbora050411.github.io/050411/", ig:"b0.ra.4", hobby:"공포 보기", home:"경기도 의정부시 금오동", short:"의정부 금오동", love:"김복돌", sex:"여자", lat:37.752, lon:127.070, a:"t"},
+ {n:"김승기", gh:"Seung7l", page:"https://seung7l.github.io/DoSiMoonWhaSulGye/", ig:"_seung7l", hobby:"네줄기타", home:"경기도 구리시 인창동", short:"구리 인창동", love:"바로바로 나!", sex:"남자", lat:37.607, lon:127.140, a:"l"},
+ {n:"문민희", gh:"massiag41-art", page:"https://massiag41-art.github.io/1233/", ig:"mini3061", hobby:"게임", home:"경기도 남양주시", short:"남양주", love:"가족, 망고, 여름", sex:"여자", lat:37.636, lon:127.216, a:"r"},
+ {n:"민제희", gh:"alfmekfn5", page:"https://alfmekfn5.github.io/555/", ig:"mirdar.u_", hobby:"게임, 운동, 기깔나게 자기", home:"강원도 춘천시", short:"춘천", love:"가족들, 이연우", sex:"경동대제국 1황녀", lat:37.881, lon:127.730, a:"l"},
+ {n:"윤수아", gh:"tndk0512-ux", page:"https://tndk0512-ux.github.io/index/", ig:"tnd_0_5", hobby:"기타, 애니, 음악듣기", home:"서울특별시 송파구 마천동", short:"송파 마천동", love:"동생", sex:"여자", lat:37.495, lon:127.150, a:"r"},
+ {n:"이지민", gh:"leejimin0", page:"https://leejimin0.github.io/ezym/", ig:"tonmozza", hobby:"독서", home:"경기도 하남시 망월동", short:"하남 망월동", love:"가족", sex:"여자", lat:37.567, lon:127.190, a:"r"},
+ {n:"정유림", gh:"yourrime0502-afk", page:"https://yourrime0502-afk.github.io/kdu1/", ig:"nollimmm", hobby:"콘서트 관람", home:"동대문구 답십리2동", short:"동대문 답십리2동", love:"우리 엄마, 이성열 미모", sex:"여자", lat:37.572, lon:127.055, a:"l"},
+ {n:"최윤영", gh:"usagi030dd", page:"https://usagi030dd.github.io/samples/", ig:"usagi030dd", hobby:"음악 감상 및 연주(통기타&일렉)", home:"서울특별시 도봉구 쌍문동", short:"도봉 쌍문동", love:"엄마", sex:"여자", lat:37.648, lon:127.030, a:"l"},
+ {n:"최윤지", gh:"choiyg1105-cloud", page:"https://choiyg1105-cloud.github.io/save/", ig:"yum._.crochet", hobby:"우쿨렐레, 뜨개질", home:"경기도 포천시", short:"포천", love:"건강", sex:"여자", lat:37.895, lon:127.200, a:"r"},
+ {n:"신단하", gh:"danhaaaa", page:"https://danhaaaa.github.io/sakuya/", ig:"danha_naa", hobby:"위시 사랑하기", home:"경기도 의정부시 신곡2동", short:"의정부 신곡2동", love:"동생", sex:"여자", lat:37.735, lon:127.070, a:"b"}
+];
+const HOBBY = [
+ ["음악·악기", ["박종석","강민서","박정빈","김나림","김승기","윤수아","정유림","최윤영","최윤지"]],
+ ["영화·애니", ["박종석","강민서","김나림","김보라","윤수아"]],
+ ["게임", ["박준영","문민희","민제희"]],
+ ["운동", ["김나림","민제희"]],
+ ["그림·뜨개질", ["김나림","최윤지"]],
+ ["덕질·수집", ["강민서","신단하"]],
+ ["독서", ["이지민"]],
+ ["잠", ["민제희"]]
+];
+const LOVE = [
+ ["가족", ["강민서","문민희","민제희","윤수아","이지민","정유림","최윤영","신단하"]],
+ ["나 자신", ["박종석","박정빈","김나림","김승기"]],
+ ["특정한 누군가", ["박준영","김보라","민제희","정유림"]],
+ ["그 밖", ["문민희 “망고, 여름”","최윤지 “건강”"]]
+];
+const GENDER = [
+ ["여자", ["강민서","박정빈","김보라","문민희","윤수아","이지민","정유림","최윤영","최윤지","신단하"]],
+ ["남자", ["김승기"]],
+ ["장난 답변", ["박준영 “공룡”","김나림 “덩엉이”","민제희 “경동대제국 1황녀”"]],
+ ["비워 둠", ["박종석"]]
+];
+
+// distance (km, equirectangular)
+const KX = 111.32*Math.cos(37.7*Math.PI/180), KY = 110.95;
+P.forEach(p=>{ p.d = Math.hypot((p.lon-SCHOOL.lon)*KX, (p.lat-SCHOOL.lat)*KY); });
+const fmt = d => d>=100 ? Math.round(d)+"" : d.toFixed(1);
+const esc = s => s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// ---------- map ----------
+const LON0=126.74, LAT0=37.98, S=10; // 10px per km
+const X = lon => (lon-LON0)*KX*S, Y = lat => (LAT0-lat)*KY*S;
+const sx=X(SCHOOL.lon), sy=Y(SCHOOL.lat);
+let m = "";
+[10,20,30,40,50,60].forEach(r=>{
+  m += `<circle class="ring" cx="${sx}" cy="${sy}" r="${r*S}"/>`;
+  m += `<text class="ringlab" x="${sx+r*S*0.707+4}" y="${sy-r*S*0.707-3}">${r}km</text>`;
+});
+const river=[[126.86,37.57],[126.90,37.55],[127.00,37.52],[127.07,37.525],[127.11,37.545],[127.13,37.56],[127.19,37.578],[127.25,37.555],[127.30,37.52]];
+m += `<polyline class="river" points="${river.map(c=>X(c[0])+","+Y(c[1])).join(" ")}"/>`;
+m += `<text class="geo" x="${X(126.93)}" y="${Y(37.585)}">서울</text>`;
+m += `<text class="geo" x="${X(126.93)}" y="${Y(37.505)}" style="letter-spacing:.1em">한강</text>`;
+P.filter(p=>!p.off).forEach(p=>{ m += `<line class="link" x1="${sx}" y1="${sy}" x2="${X(p.lon)}" y2="${Y(p.lat)}"/>`; });
+m += `<g class="school"><rect x="${sx-7}" y="${sy-7}" width="14" height="14" rx="2"/><text x="${sx+12}" y="${sy-8}">학교</text></g>`;
+const off = {r:[11,4,"start"], l:[-11,4,"end"], t:[0,-11,"middle"], b:[0,20,"middle"]};
+P.forEach((p,i)=>{
+  let x,y,o,label=p.n;
+  if(p.off){ x=600; y=560; o=off.r; label=`${p.n} · 거제 ↓ ${fmt(p.d)}km`; }
+  else { x=X(p.lon); y=Y(p.lat); o=off[p.a]; }
+  m += `<g class="pt" data-i="${i}" tabindex="0" role="button" aria-label="${p.n}, ${p.short}">
+    <title>${p.n} · ${p.short} · ${fmt(p.d)}km</title>
+    <circle class="hit" cx="${x}" cy="${y}" r="14"/><circle class="dot" cx="${x}" cy="${y}" r="6"/>
+    <text x="${x+o[0]}" y="${y+o[1]}" text-anchor="${o[2]}">${label}</text></g>`;
+});
+document.getElementById("map").innerHTML = m;
+
+// ---------- profile ----------
+let sel = 0;
+function select(i){
+  sel = i; const p = P[i];
+  document.querySelectorAll(".pt").forEach(g=>g.classList.toggle("on", +g.dataset.i===i));
+  document.querySelectorAll("#dist .row").forEach(r=>r.classList.toggle("on", +r.dataset.i===i));
+  document.getElementById("profile").innerHTML = `
+    <p class="sub" style="margin:0">프로필</p>
+    <p class="pname">${p.n}</p>
+    <dl>
+      <dt>사는 곳</dt><dd>${esc(p.home)} · 학교에서 ${fmt(p.d)}km</dd>
+      <dt>취미</dt><dd>${esc(p.hobby)}</dd>
+      <dt>세상에서 가장 아끼는 것</dt><dd>${esc(p.love)}</dd>
+      <dt>성별 칸</dt><dd>${p.sex?esc(p.sex):"(비워 둠)"}</dd>
+      <dt>인스타그램</dt><dd>@${esc(p.ig)}</dd>
+      <dt>GitHub</dt><dd><a href="https://github.com/${p.gh}" target="_blank" rel="noopener">${p.gh}</a></dd>
+      <dt>제출 페이지</dt><dd>${p.page?`<a href="${p.page}" target="_blank" rel="noopener">${p.page.replace("https://","")}</a>`:"아직 없음"}</dd>
+    </dl>
+    <div class="roster">${P.map((q,j)=>`<button data-i="${j}" class="${j===i?"on":""}">${q.n}</button>`).join("")}</div>`;
+}
+document.addEventListener("click",e=>{ const t=e.target.closest("[data-i]"); if(t) select(+t.dataset.i); });
+document.addEventListener("keydown",e=>{ if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("pt")){e.preventDefault();select(+e.target.dataset.i);} });
+
+// ---------- distance bars ----------
+const MAXD = 60;
+const sorted = P.map((p,i)=>({p,i})).sort((a,b)=>a.p.d-b.p.d);
+document.getElementById("dist").innerHTML = sorted.map(({p,i})=>{
+  const cut = p.d>MAXD, w = Math.min(p.d,MAXD)/MAXD*72;
+  return `<div class="row click" data-i="${i}" title="${p.n} · ${p.short} · ${fmt(p.d)}km">
+    <span class="lab">${p.n}</span>
+    <span class="track"><span class="bar${cut?" cut":""}" style="width:${w}%"></span><span class="val">${fmt(p.d)}</span><span class="who">${p.short}</span></span></div>`;
+}).join("");
+
+// ---------- count bars ----------
+function bars(id, data){
+  const max = Math.max(...data.map(d=>d[1].length));
+  document.getElementById(id).innerHTML = data.map(([k,names])=>
+    `<div class="row" title="${k}: ${esc(names.join(", "))}"><span class="lab">${k}</span>
+     <span class="track"><span class="bar" style="width:${names.length/max*38}%"></span><span class="val">${names.length}</span><span class="who">${esc(names.join(" · "))}</span></span></div>`).join("");
+}
+bars("hobby",HOBBY); bars("love",LOVE); bars("gender",GENDER);
+
+// ---------- tiles + lede ----------
+const near = P.filter(p=>p.d<=10).length;
+const ds = P.map(p=>p.d).sort((a,b)=>a-b), med = ds[Math.floor(ds.length/2)];
+const ujb = P.filter(p=>p.home.includes("의정부")).length;
+const far = sorted[sorted.length-1].p, far2 = sorted[sorted.length-2].p;
+const pages = P.filter(p=>p.page).length;
+document.getElementById("tiles").innerHTML = [
+  [P.length,"명","표에 입력한 수강생"],
+  [ujb,"명","의정부에 사는 사람"],
+  [fmt(med),"km","통학 직선거리 중앙값"],
+  [pages+"/"+P.length,"","GitHub Pages 제출"]
+].map(t=>`<div class="card tile"><div class="v">${t[0]}<small>${t[1]}</small></div><div class="k">${t[2]}</div></div>`).join("");
+document.getElementById("lede").innerHTML =
+ `깃허브 주소 입력표에 적힌 ${P.length}명의 자기소개를 수도권 지도 위에 얹었습니다. <b>${P.length}명 중 ${ujb}명이 의정부</b>에 살고, `+
+ `수도권 안에서 가장 멀리서 오는 사람은 <b>${far2.short.split(" ")[0]}에서 ${fmt(far2.d)}km</b>, 주소를 ${far.short.split(" ")[0]}로 적은 사람은 ${fmt(far.d)}km 떨어져 있습니다. `+
+ `취미는 <b>${P.length}명 중 ${HOBBY[0][1].length}명이 음악</b>을 적었습니다.`;
+select(0);
+</script>
+</body>
+</html>
